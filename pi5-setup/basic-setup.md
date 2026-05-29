@@ -23,7 +23,7 @@ Using Raspberry Pi Imager:
    - **General → Hostname:** `pihost-NNN` (replace `NNN` with the next available number; this host is `pihost-002`).
    - **General → Username:** `pi`.
    - **General → Password:** set a strong password (we will use key-based SSH, but the Imager still requires a password).
-   - **General → Wi-Fi:** optional. **Prefer Ethernet for a server.** Add Wi-Fi only if Ethernet is not available at the target location.
+   - **General → Wi-Fi:** configure the home Wi-Fi network as a backup path. Ethernet is the primary link for a server, but having Wi-Fi configured means the host remains reachable if the cable is unplugged or the switch port goes down.
    - **General → Locale:** set the appropriate time zone and keyboard.
    - **Services → Enable SSH:** select **public-key authentication only** and paste the operator's SSH public key.
 5. Write the image.
@@ -33,7 +33,7 @@ The Imager applies these settings on first boot, including creating the `pi` use
 ## 2. First boot and verify connectivity
 
 1. Insert the storage into the Pi.
-2. Connect Ethernet (or rely on the configured Wi-Fi).
+2. Connect Ethernet to the LAN. If Wi-Fi was also configured, both interfaces will come up; NetworkManager prefers the wired link automatically via a lower routing metric, and `<hostname>.local` resolves to the wired IP.
 3. Power on. First boot takes roughly 60–90 seconds (filesystem expansion, network bring-up, hostname publishing).
 4. From the operator's computer:
 
