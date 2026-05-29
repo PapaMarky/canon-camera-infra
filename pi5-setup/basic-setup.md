@@ -14,6 +14,8 @@ Procedure for preparing a Raspberry Pi to host the workspace's local Debian repo
 
 ## 1. Flash the OS image
 
+> The Raspberry Pi Imager UI evolves between versions; field and button labels may shift. The settings below describe the configuration intent — locate the equivalent control in whichever Imager version is current.
+
 Using Raspberry Pi Imager:
 
 1. Choose Device: **Raspberry Pi 5**.
