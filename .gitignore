@@ -1,0 +1,22 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors / IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python (in case helper scripts use it)
+__pycache__/
+*.py[codz]
+.venv/
+venv/
+
+# Secrets — never commit
+# GPG private keys, server credentials, environment files
+secrets/
+.env
+.env.*
