@@ -80,13 +80,56 @@ uname -a              # running kernel should match the installed package
 systemctl --failed    # should report zero failed units
 ```
 
+## 5. Install base packages
+
+Install the minimum tooling needed to operate the host. Component-specific tooling (apt-repo manager, GPG signing keys, PyPI server, etc.) is installed by the setup scripts for the Debian repo (#1) and PyPI server (#2); this step is only the host-level basics.
+
+```sh
+sudo apt-get install -y git
+```
+
+## 6. Harden SSH
+
+Disable password authentication and root login. SSH access on a server should be key-only.
+
+Drop the hardening config into `/etc/ssh/sshd_config.d/` so the main `sshd_config` stays unmodified (Bookworm's stock `sshd_config` already includes drop-ins from that directory):
+
+```sh
+sudo tee /etc/ssh/sshd_config.d/10-canon-hardening.conf >/dev/null <<'CONF'
+# Canon workspace package-server hardening.
+# Key-based auth only; no root login.
+PasswordAuthentication no
+PermitRootLogin no
+CONF
+sudo chmod 644 /etc/ssh/sshd_config.d/10-canon-hardening.conf
+```
+
+Validate the config, confirm the effective settings, then reload `sshd`:
+
+```sh
+sudo sshd -t                                                          # syntax check
+sudo sshd -T | grep -iE '^(passwordauthentication|permitrootlogin) '  # effective values
+sudo systemctl reload ssh
+```
+
+**Verify from the operator's computer in a new shell — without closing the existing session** — that key-based SSH still works:
+
+```sh
+ssh pi@<hostname>.local 'echo OK'
+```
+
+If the new connection fails, recover from the existing session:
+
+```sh
+sudo rm /etc/ssh/sshd_config.d/10-canon-hardening.conf
+sudo systemctl reload ssh
+```
+
 ## Remaining work
 
-This document covers the **base OS prep** only. The following items will be folded into their own scripted setup steps as the rest of the infrastructure work proceeds:
+This document covers the **base OS prep**. Related but separately-tracked work:
 
-- Base package install (`git`, `gpg` operator keys, repo-management tooling) — TBD
-- SSH hardening (disable password authentication; disable root login) — TBD
-- Firewall (`ufw` or `nft`) — TBD
-- Static IP / DHCP reservation for the host — TBD
+- Firewall (`ufw` vs `nft`, ports to allow) — [#5](https://github.com/PapaMarky/canon-camera-infra/issues/5)
+- Static IP / DHCP reservation for the host — [#6](https://github.com/PapaMarky/canon-camera-infra/issues/6)
 - Local Debian repository setup — [#1](https://github.com/PapaMarky/canon-camera-infra/issues/1)
 - Local PyPI server setup — [#2](https://github.com/PapaMarky/canon-camera-infra/issues/2)
