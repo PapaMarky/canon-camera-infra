@@ -53,7 +53,13 @@ sudo chown pi:pi /srv/pypi/.htpasswd
 sudo chmod 600 /srv/pypi/.htpasswd
 ```
 
-> Record the password in the operator's password manager. CI stores it as a repository secret (see [client-config](../client-config/README.md)). Rotating it is just a re-run of `htpasswd` followed by `systemctl restart pypi-server`.
+> Record the password in the operator's password manager. CI stores it as a repository secret (see [client-config](../client-config/README.md)). Rotating it is a re-run of `htpasswd /srv/pypi/.htpasswd uploader` (without `-c`, which would truncate the file) followed by `systemctl restart pypi-server`.
+
+The upload examples below read the password from `$PYPI_UPLOAD_PASSWORD`. Export it in your shell first so it stays out of process listings and history:
+
+```sh
+read -rs PYPI_UPLOAD_PASSWORD && export PYPI_UPLOAD_PASSWORD      # paste the password, press Enter
+```
 
 ## 4. Install the systemd service
 
@@ -120,7 +126,7 @@ EOF
 : > src/ccinfra_smoketest/__init__.py
 /tmp/cc-smoke/bin/python -m build --wheel -o dist .
 
-# Upload without credentials must be rejected (expect 403):
+# Upload with bad credentials must be rejected (expect 403; no credentials gives 401):
 /tmp/cc-smoke/bin/twine upload --repository-url http://pihost-002.local:8080/ -u x -p x dist/*.whl
 
 # Upload with the uploader credential must succeed:
