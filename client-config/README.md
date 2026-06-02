@@ -29,3 +29,29 @@ The `cc-client` release workflow uploads with `twine`. It does **not** use `pip.
 - `TWINE_PASSWORD` = stored as a repository secret (the htpasswd password from PyPI server [setup](../pypi-server/setup.md) step 3)
 
 CI must run on a runner with LAN access to the host. See [PapaMarky/cc-client#13](https://github.com/PapaMarky/cc-client/issues/13).
+
+## apt — install from the local Debian repo
+
+The local apt repository is served over plain HTTP, but — unlike the pip case above — that needs no `trusted-host` workaround. apt verifies the repository by its **GPG signature**, so integrity and authenticity come from the signature, not the transport. TLS is intentionally omitted for the same internal-only reason.
+
+### Target devices
+
+Install the repository's public signing key and the source definition:
+
+```sh
+sudo install -d -m 0755 /etc/apt/keyrings
+sudo install -m 644 canon-apt-archive-keyring.asc /etc/apt/keyrings/
+sudo install -m 644 canon-camera.sources /etc/apt/sources.list.d/canon-camera.sources
+sudo apt-get update
+```
+
+After this, `apt-get install base-unit` (and other first-party packages) resolves from the local repo. The `pi-camera-control2` `.deb` depends on `base-unit`, so apt pulls it from here automatically.
+
+- [`canon-camera.sources`](canon-camera.sources) — deb822 source, installed to `/etc/apt/sources.list.d/`.
+- [`canon-apt-archive-keyring.asc`](canon-apt-archive-keyring.asc) — the repository's **public** signing key (the private half never leaves the host). The `Signed-By` line in the source pins trust to exactly this key, so it applies *only* to this repo — no other apt source is affected.
+
+> **No dependency-confusion analog here.** Unlike pip's `extra-index-url` (which merges candidates across indexes by version), an apt source is scoped to its own suite/components and pinned to a specific signing key. apt will not silently pull a same-named package from a different, untrusted source.
+
+### Publishing `.deb`s
+
+Adding packages to the repo is an operator/CI step run on the host (`reprepro includedeb`), not a client concern. See [debian-repo/setup.md](../debian-repo/setup.md) → Operations.

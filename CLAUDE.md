@@ -30,16 +30,21 @@ Serves Python wheels for `cc-client` (and future utility libraries). See issue #
 ### Client Configuration
 `sources.list` snippets and `pip.conf` templates for target devices.
 
-## Project Structure (planned)
+## Project Structure
 
 ```
 canon-camera-infra/
-├── debian-repo/        # Server setup + management scripts for the apt repo
-├── pypi-server/        # Server setup + management scripts for the PyPI server
+├── debian-repo/        # apt repo setup runbook (setup.md)
+├── pypi-server/        # PyPI server setup runbook (setup.md)
 ├── pi5-setup/          # Base Pi5 OS prep (common to both components)
-├── client-config/      # sources.list, pip.conf templates for consumers
-└── docs/
+└── client-config/      # sources.list, pip.conf templates for consumers
 ```
+
+> **Delivered as documented runbooks, not scripts.** The package servers are rebuilt
+> rarely (once per host, not in a daily/CI loop) and the steps are mostly `apt`/`venv`/
+> `systemd`/`reprepro` one-liners, so each component ships as a `setup.md` an operator
+> follows once, with copy-paste snippets — rather than a wrapper script to keep in sync.
+> (Decision recorded on issue #2; the Debian repo follows the same model.)
 
 ## Conventions
 
