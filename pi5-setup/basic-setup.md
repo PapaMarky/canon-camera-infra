@@ -2,7 +2,7 @@
 
 Procedure for preparing a Raspberry Pi to host the workspace's local Debian repository and local PyPI server.
 
-**Verified on:** 2026-05-29 — Raspberry Pi 5 (16 GB), Raspberry Pi OS Bookworm (Debian 12), host `pihost-002`.
+**Verified on:** 2026-06-04 — Raspberry Pi 5 (16 GB), Raspberry Pi OS Trixie (Debian 13), host `pihost-002`.
 
 ## Prerequisites
 
@@ -19,7 +19,7 @@ Procedure for preparing a Raspberry Pi to host the workspace's local Debian repo
 Using Raspberry Pi Imager:
 
 1. Choose Device: **Raspberry Pi 5**.
-2. Choose OS: **Raspberry Pi OS Lite (64-bit)** (Debian Bookworm).
+2. Choose OS: **Raspberry Pi OS Lite (64-bit)** (Debian Trixie).
 3. Choose Storage: the target SD card or SSD.
 4. Click **Next** and open **Edit Settings**:
    - **General → Hostname:** `pihost-NNN` (replace `NNN` with the next available number; this host is `pihost-002`).
@@ -30,7 +30,9 @@ Using Raspberry Pi Imager:
    - **Services → Enable SSH:** select **public-key authentication only** and paste the operator's SSH public key.
 5. Write the image.
 
-The Imager applies these settings on first boot, including creating the `pi` user with NOPASSWD sudo (via the `/etc/sudoers.d/010_pi-nopasswd` drop-in) and installing the SSH key into `~pi/.ssh/authorized_keys`.
+The Imager applies these settings on first boot: it creates the `pi` user and installs the SSH key into `~pi/.ssh/authorized_keys`.
+
+> **Trixie note:** unlike older Bookworm images, the Trixie Imager does **not** grant the first user passwordless sudo — `sudo` prompts for a password. Step 2 adds the `NOPASSWD` drop-in so the rest of this runbook (and remote automation over SSH) can run `sudo` non-interactively.
 
 ## 2. First boot and verify connectivity
 
@@ -44,6 +46,14 @@ The Imager applies these settings on first boot, including creating the `pi` use
    ```
 
    If mDNS resolution fails, find the Pi's IP from your router's DHCP table and connect by IP.
+
+5. Grant the `pi` user passwordless sudo. The Trixie Imager does not configure this, but the remaining steps (and remote automation over SSH) run `sudo` non-interactively, so add the drop-in — it prompts for your password once:
+
+   ```sh
+   echo 'pi ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/010_pi-nopasswd >/dev/null
+   sudo chmod 440 /etc/sudoers.d/010_pi-nopasswd
+   sudo -n true && echo "passwordless sudo OK"
+   ```
 
 ## 3. Update the OS to the latest packages
 
@@ -92,7 +102,7 @@ sudo apt-get install -y git
 
 Disable password authentication and root login. SSH access on a server should be key-only.
 
-Drop the hardening config into `/etc/ssh/sshd_config.d/` so the main `sshd_config` stays unmodified (Bookworm's stock `sshd_config` already includes drop-ins from that directory):
+Drop the hardening config into `/etc/ssh/sshd_config.d/` so the main `sshd_config` stays unmodified (Trixie's stock `sshd_config` already includes drop-ins from that directory). Trixie also ships a `50-cloud-init.conf` drop-in that already sets `PasswordAuthentication no`; the file below sorts ahead of it and additionally enforces `PermitRootLogin no`:
 
 ```sh
 sudo tee /etc/ssh/sshd_config.d/10-canon-hardening.conf >/dev/null <<'CONF'

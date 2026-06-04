@@ -1,0 +1,10 @@
+# Canon Camera workspace — install first-party .deb packages from the local apt repo.
+# Install to /etc/apt/sources.list.d/canon-camera.sources on target devices.
+# Requires the repository public key at /etc/apt/keyrings/canon-apt-archive-keyring.asc
+# (see client-config/README.md). The repo is GPG-signed, so plain HTTP is safe.
+Types: deb
+URIs: http://pihost-002.local
+Suites: trixie
+Components: main
+Architectures: arm64
+Signed-By: /etc/apt/keyrings/canon-apt-archive-keyring.asc
