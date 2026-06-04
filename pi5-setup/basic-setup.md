@@ -92,7 +92,7 @@ systemctl --failed    # should report zero failed units
 
 ## 5. Install base packages
 
-Install the minimum tooling needed to operate the host. Component-specific tooling (apt-repo manager, GPG signing keys, PyPI server, etc.) is installed by the setup scripts for the Debian repo (#1) and PyPI server (#2); this step is only the host-level basics.
+Install the minimum tooling needed to operate the host. Component-specific tooling (apt-repo manager, GPG signing keys, PyPI server, etc.) is installed by the Debian repo and PyPI server runbooks ([debian-repo/setup.md](../debian-repo/setup.md), [pypi-server/setup.md](../pypi-server/setup.md)); this step is only the host-level basics.
 
 ```sh
 sudo apt-get install -y git
@@ -135,11 +135,11 @@ sudo rm /etc/ssh/sshd_config.d/10-canon-hardening.conf
 sudo systemctl reload ssh
 ```
 
-## Remaining work
+## Related work
 
-This document covers the **base OS prep**. Related but separately-tracked work:
+This document covers the **base OS prep**. The rest of the package-server stack is tracked separately:
 
-- Firewall (`ufw` vs `nft`, ports to allow) — [#5](https://github.com/PapaMarky/canon-camera-infra/issues/5)
-- Static IP / DHCP reservation for the host — [#6](https://github.com/PapaMarky/canon-camera-infra/issues/6)
-- Local Debian repository setup — [#1](https://github.com/PapaMarky/canon-camera-infra/issues/1)
-- Local PyPI server setup — [#2](https://github.com/PapaMarky/canon-camera-infra/issues/2)
+- Local Debian repository — **set up**: [debian-repo/setup.md](../debian-repo/setup.md) ([#1](https://github.com/PapaMarky/canon-camera-infra/issues/1), closed).
+- Local PyPI server — **set up**: [pypi-server/setup.md](../pypi-server/setup.md) ([#2](https://github.com/PapaMarky/canon-camera-infra/issues/2), closed).
+- Firewall (`ufw` vs `nft`, ports to allow) — **open**, [#5](https://github.com/PapaMarky/canon-camera-infra/issues/5).
+- Host addressing uses mDNS (`pihost-002.local`) **by design**; a static IP / DHCP reservation was **declined** (nothing hardcodes the IP, and the home router doesn't support reservations well) — [#6](https://github.com/PapaMarky/canon-camera-infra/issues/6), closed won't-do.

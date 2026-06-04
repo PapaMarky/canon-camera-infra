@@ -239,6 +239,6 @@ reprepro -b /srv/apt deleteunreferenced   # prune pool files no longer reference
 ## Related work
 
 - Client (target-device) configuration to install from this repo — [client-config](../client-config/README.md)
-- Firewall rule to expose port 80 on the LAN — [#5](https://github.com/PapaMarky/canon-camera-infra/issues/5)
-- Static IP / DHCP reservation so `pihost-002.local` is stable — [#6](https://github.com/PapaMarky/canon-camera-infra/issues/6)
+- Firewall rule to expose port 80 on the LAN — **open**, [#5](https://github.com/PapaMarky/canon-camera-infra/issues/5).
+- Host addressing uses mDNS (`pihost-002.local`) **by design**; a static IP / DHCP reservation was **declined** (nothing hardcodes the IP, and the home router doesn't support reservations well) — [#6](https://github.com/PapaMarky/canon-camera-infra/issues/6), closed won't-do.
 - Local PyPI server (the sibling deliverable this mirrors) — [pypi-server](../pypi-server/setup.md)
