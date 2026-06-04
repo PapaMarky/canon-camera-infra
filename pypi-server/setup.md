@@ -198,6 +198,6 @@ ssh pi@pihost-002.local 'rm /srv/pypi/packages/cc_client-0.1.0-py3-none-any.whl'
 ## Related work
 
 - Client (target-device and CI) configuration to install from this index — [client-config](../client-config/README.md)
-- Firewall rule to expose port 8080 on the LAN — [#5](https://github.com/PapaMarky/canon-camera-infra/issues/5)
-- Static IP / DHCP reservation so `pihost-002.local` is stable — [#6](https://github.com/PapaMarky/canon-camera-infra/issues/6)
-- cc-client release workflow publishing wheels here — [PapaMarky/cc-client#13](https://github.com/PapaMarky/cc-client/issues/13)
+- Firewall rule to expose port 8080 on the LAN — **open**, [#5](https://github.com/PapaMarky/canon-camera-infra/issues/5).
+- Host addressing uses mDNS (`pihost-002.local`) **by design**; a static IP / DHCP reservation was **declined** (nothing hardcodes the IP, and the home router doesn't support reservations well) — [#6](https://github.com/PapaMarky/canon-camera-infra/issues/6), closed won't-do.
+- cc-client release workflow publishes wheels here — **done**, [PapaMarky/cc-client#13](https://github.com/PapaMarky/cc-client/issues/13).
