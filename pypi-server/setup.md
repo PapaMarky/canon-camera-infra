@@ -2,7 +2,7 @@
 
 Procedure for standing up the workspace's local PyPI server on the package-server host. It serves Python wheels (currently `cc-client`, later other utility libraries) to target devices and to CI.
 
-**Verified on:** 2026-05-29 — `pihost-002`, Raspberry Pi OS Bookworm (Debian 12), Python 3.11.2, pypiserver 2.4.1. Auth enforcement (anonymous upload → `403`) and a full upload→install roundtrip were confirmed (see [Smoke test](#smoke-test)).
+**Verified on:** 2026-06-04 — `pihost-002`, Raspberry Pi OS Trixie (Debian 13), Python 3.13.5, pypiserver 2.4.1. Auth enforcement (anonymous upload → `403`) and a full upload→install roundtrip were confirmed (see [Smoke test](#smoke-test)).
 
 Prerequisite: the host has completed [base OS prep](../pi5-setup/basic-setup.md).
 
@@ -31,7 +31,7 @@ sudo install -d -o pi -g pi /srv/pypi /srv/pypi/packages
 
 ## 2. Install pypiserver into a venv
 
-Raspberry Pi OS Bookworm marks the system Python as externally managed (PEP 668), so install the server into its own virtualenv rather than system-wide:
+Raspberry Pi OS Trixie marks the system Python as externally managed (PEP 668), so install the server into its own virtualenv rather than system-wide:
 
 ```sh
 sudo apt-get install -y python3-venv

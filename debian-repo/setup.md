@@ -2,7 +2,7 @@
 
 Procedure for standing up the workspace's local apt repository on the package-server host. It serves `.deb` artifacts (`base-unit`, and later `pi-camera-control2`) to target devices.
 
-**Verified on:** 2026-06-02 — `pihost-002`, Raspberry Pi OS Bookworm (Debian 12), reprepro 5.3.1, nginx 1.22.1, GnuPG 2.2.40. A full build→sign→include→`apt install`→remove roundtrip was confirmed, including that a missing/incorrect client key makes `apt-get update` fail (see [Smoke test](#smoke-test)).
+**Verified on:** 2026-06-04 — `pihost-002`, Raspberry Pi OS Trixie (Debian 13), reprepro 5.3.1, nginx 1.26.3, GnuPG 2.4.7. A full build→sign→include→`apt install`→remove roundtrip was confirmed, including that a missing/incorrect client key makes `apt-get update` fail (see [Smoke test](#smoke-test)).
 
 Prerequisite: the host has completed [base OS prep](../pi5-setup/basic-setup.md).
 
@@ -78,13 +78,13 @@ gpg --armor --export "$KEYID" > /srv/apt/canon-apt-archive-keyring.asc
 
 ## 4. Configure the repository
 
-`conf/distributions` defines the single `bookworm` suite. Architecture-independent (`Architecture: all`) packages — which is what the first-party `.deb`s are — are served under the listed binary architecture automatically.
+`conf/distributions` defines the single `trixie` suite. Architecture-independent (`Architecture: all`) packages — which is what the first-party `.deb`s are — are served under the listed binary architecture automatically.
 
 ```sh
 tee /srv/apt/conf/distributions >/dev/null <<DIST
 Origin: Canon Camera Workspace
 Label: canon-camera-infra
-Codename: bookworm
+Codename: trixie
 Architectures: arm64
 Components: main
 Description: Local apt repository for base-unit and pi-camera-control2
@@ -108,7 +108,7 @@ Generate the (empty, signed) index:
 reprepro -b /srv/apt export
 ```
 
-This creates `/srv/apt/public/dists/bookworm/` with a signed `Release`/`InRelease`.
+This creates `/srv/apt/public/dists/trixie/` with a signed `Release`/`InRelease`.
 
 ## 5. Serve the repository with nginx
 
@@ -137,7 +137,7 @@ sudo systemctl restart nginx
 Confirm it is serving the index:
 
 ```sh
-curl -fsS http://localhost/dists/bookworm/InRelease >/dev/null && echo OK
+curl -fsS http://localhost/dists/trixie/InRelease >/dev/null && echo OK
 ```
 
 > Port 80 must be reachable from the LAN. Opening it is tracked under the firewall work — [#5](https://github.com/PapaMarky/canon-camera-infra/issues/5).
@@ -147,7 +147,7 @@ curl -fsS http://localhost/dists/bookworm/InRelease >/dev/null && echo OK
 From the operator's computer (replace the host if not `pihost-002`):
 
 ```sh
-curl -fsS http://pihost-002.local/dists/bookworm/InRelease >/dev/null && echo "index reachable"
+curl -fsS http://pihost-002.local/dists/trixie/InRelease >/dev/null && echo "index reachable"
 ```
 
 ## Smoke test
@@ -166,11 +166,11 @@ Priority: optional
 Maintainer: Canon Camera Workspace <canon-apt@pihost-002.local>
 Description: Throwaway package to verify the local apt repo.
 CONTROL
-dpkg-deb --build /tmp/canon-smoketest /tmp/canon-apt-smoketest_0.0.1_all.deb
+dpkg-deb --root-owner-group --build /tmp/canon-smoketest /tmp/canon-apt-smoketest_0.0.1_all.deb
 
 # Publish it into the repo:
-reprepro -b /srv/apt includedeb bookworm /tmp/canon-apt-smoketest_0.0.1_all.deb
-reprepro -b /srv/apt list bookworm
+reprepro -b /srv/apt includedeb trixie /tmp/canon-apt-smoketest_0.0.1_all.deb
+reprepro -b /srv/apt list trixie
 
 # Configure this machine as a client and install through apt (see client-config):
 sudo install -d -m 0755 /etc/apt/keyrings
@@ -178,7 +178,7 @@ sudo cp /srv/apt/canon-apt-archive-keyring.asc /etc/apt/keyrings/
 sudo tee /etc/apt/sources.list.d/canon-camera.sources >/dev/null <<'SRC'
 Types: deb
 URIs: http://pihost-002.local
-Suites: bookworm
+Suites: trixie
 Components: main
 Architectures: arm64
 Signed-By: /etc/apt/keyrings/canon-apt-archive-keyring.asc
@@ -193,7 +193,7 @@ Clean up afterward — uninstall the test package, remove it from the repo, and 
 
 ```sh
 sudo apt-get purge -y canon-apt-smoketest
-reprepro -b /srv/apt remove bookworm canon-apt-smoketest
+reprepro -b /srv/apt remove trixie canon-apt-smoketest
 sudo rm /etc/apt/sources.list.d/canon-camera.sources
 rm -rf /tmp/canon-smoketest /tmp/canon-apt-smoketest_0.0.1_all.deb
 ```
@@ -205,7 +205,7 @@ reprepro has no daemon — operating the repo is running `reprepro -b /srv/apt <
 ### Add a `.deb`
 
 ```sh
-reprepro -b /srv/apt includedeb bookworm path/to/package_1.2.3_arm64.deb
+reprepro -b /srv/apt includedeb trixie path/to/package_1.2.3_arm64.deb
 ```
 
 > reprepro is stricter than `dpkg` about control metadata: the `.deb` must declare a `Section` and `Priority`, or `includedeb` rejects it with `No section given … skipping`. Packages built by `base-unit`/`pi-camera-control2` should set both in their control file.
@@ -214,7 +214,7 @@ Sibling repos publish by copying their built `.deb` to the host and running the 
 
 ```sh
 scp package_1.2.3_arm64.deb pi@pihost-002.local:/tmp/
-ssh pi@pihost-002.local 'reprepro -b /srv/apt includedeb bookworm /tmp/package_1.2.3_arm64.deb'
+ssh pi@pihost-002.local 'reprepro -b /srv/apt includedeb trixie /tmp/package_1.2.3_arm64.deb'
 ```
 
 > Wiring the `base-unit` and `pi-camera-control2` release workflows to do this automatically is tracked in those repos, not here.
@@ -222,15 +222,15 @@ ssh pi@pihost-002.local 'reprepro -b /srv/apt includedeb bookworm /tmp/package_1
 ### List what is served
 
 ```sh
-reprepro -b /srv/apt list bookworm
+reprepro -b /srv/apt list trixie
 # or from any client:
-curl -fsS http://pihost-002.local/dists/bookworm/main/binary-arm64/Packages
+curl -fsS http://pihost-002.local/dists/trixie/main/binary-arm64/Packages
 ```
 
 ### Remove a package
 
 ```sh
-reprepro -b /srv/apt remove bookworm <package-name>
+reprepro -b /srv/apt remove trixie <package-name>
 reprepro -b /srv/apt deleteunreferenced   # prune pool files no longer referenced
 ```
 
