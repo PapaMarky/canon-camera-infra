@@ -141,5 +141,5 @@ This document covers the **base OS prep**. The rest of the package-server stack 
 
 - Local Debian repository — **set up**: [debian-repo/setup.md](../debian-repo/setup.md) ([#1](https://github.com/PapaMarky/canon-camera-infra/issues/1), closed).
 - Local PyPI server — **set up**: [pypi-server/setup.md](../pypi-server/setup.md) ([#2](https://github.com/PapaMarky/canon-camera-infra/issues/2), closed).
-- Firewall (`ufw` vs `nft`, ports to allow) — **open**, [#5](https://github.com/PapaMarky/canon-camera-infra/issues/5).
+- Firewall — **set up** with ufw: [firewall.md](firewall.md) ([#5](https://github.com/PapaMarky/canon-camera-infra/issues/5), closed).
 - Host addressing uses mDNS (`pihost-002.local`) **by design**; a static IP / DHCP reservation was **declined** (nothing hardcodes the IP, and the home router doesn't support reservations well) — [#6](https://github.com/PapaMarky/canon-camera-infra/issues/6), closed won't-do.

@@ -98,7 +98,7 @@ systemctl status pypi-server --no-pager
 curl -fsS http://localhost:8080/ >/dev/null && echo OK
 ```
 
-> Port 8080 must be reachable from the LAN. Opening it is tracked separately under the firewall work — [#5](https://github.com/PapaMarky/canon-camera-infra/issues/5).
+> Port 8080 must be reachable from the LAN. It is opened by the host firewall — see [pi5-setup/firewall.md](../pi5-setup/firewall.md) ([#5](https://github.com/PapaMarky/canon-camera-infra/issues/5)).
 
 ## 5. Verify from another machine
 
@@ -198,6 +198,6 @@ ssh pi@pihost-002.local 'rm /srv/pypi/packages/cc_client-0.1.0-py3-none-any.whl'
 ## Related work
 
 - Client (target-device and CI) configuration to install from this index — [client-config](../client-config/README.md)
-- Firewall rule to expose port 8080 on the LAN — **open**, [#5](https://github.com/PapaMarky/canon-camera-infra/issues/5).
+- Firewall opening port 8080 on the LAN — **set up**: [pi5-setup/firewall.md](../pi5-setup/firewall.md) ([#5](https://github.com/PapaMarky/canon-camera-infra/issues/5)).
 - Host addressing uses mDNS (`pihost-002.local`) **by design**; a static IP / DHCP reservation was **declined** (nothing hardcodes the IP, and the home router doesn't support reservations well) — [#6](https://github.com/PapaMarky/canon-camera-infra/issues/6), closed won't-do.
 - cc-client release workflow publishes wheels here — **done**, [PapaMarky/cc-client#13](https://github.com/PapaMarky/cc-client/issues/13).
